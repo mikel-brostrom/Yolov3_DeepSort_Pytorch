@@ -1,6 +1,6 @@
 # Deep Sort with PyTorch
 
-![](demo/demo.gif)
+![](Town.gif)
 
 ## Introduction
 
