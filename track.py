@@ -102,6 +102,7 @@ def detect(save_img=True):
     # Set Dataloader
     vid_path, vid_writer = None, None
     if webcam:
+        save_img = False
         view_img = True
         torch.backends.cudnn.benchmark = True  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=img_size, half=half)
@@ -177,7 +178,7 @@ def detect(save_img=True):
                     if len(outputs) > 0:
                         bbox_xyxy = outputs[:, :4]
                         identities = outputs[:, -1]
-                        ori_im = draw_boxes(im0, bbox_xyxy, identities)
+                        draw_boxes(im0, bbox_xyxy, identities)
                     #print('\n\n\t\ttracked objects')
                     #print(outputs)
 
