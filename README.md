@@ -1,13 +1,14 @@
 # Introduction
 
-This directory contains a moded version of PyTorch YOLOv3 (https://github.com/ultralytics/yolov3). It passes the detections to a Deep Sort algorithm (https://github.com/ZQPei/deep_sort_pytorch) which keeps track of the objects.
+This directory contains a moded version of PyTorch YOLOv3 (https://github.com/ultralytics/yolov3). It passes the detections to a Deep Sort algorithm (https://github.com/ZQPei/deep_sort_pytorch) which keeps track of the detected objects.
 
 # Description
 
 The implementation is based on two papers:
-Simple Online and Realtime Tracking with a Deep Association Metric
+
+- Simple Online and Realtime Tracking with a Deep Association Metric
 https://arxiv.org/abs/1703.07402
-YOLOv3: An Incremental Improvement
+- YOLOv3: An Incremental Improvement
 https://arxiv.org/abs/1804.02767
 
 # Requirements
@@ -23,8 +24,18 @@ All dependencies are included in the associated docker images. Docker requiremen
 
 # Tracking
 
-In order to run the tracking on a video
-`python3 detect.py --source /path/to/video`
+`track.py` runs tracking on any video source:
 
+```bash
+python3 track.py --source ...
+```
 
+- Video:  `--source file.mp4`
+- Webcam:  `--source 0`
+- RTSP stream:  `--source rtsp://170.93.143.139/rtplive/470011e600ef003a004ee33696235daa`
+- HTTP stream:  `--source http://wmccpinetop.axiscam.net/mjpg/video.mjpg`
+
+# Other information
+
+For more detailed information on the algorithms used in this project, access their official github implementations.
 
