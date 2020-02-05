@@ -41,5 +41,5 @@ python3 track.py --source ...
 
 ## Other information
 
-For more detailed information on the algorithms used in this project, access their official github implementations.
+For more detailed information about the algorithms used in this project access their official github implementations.
 
