@@ -168,7 +168,7 @@ def detect(save_img=False):
                     bbox_xywh.append(obj)
                     confs.append([conf.item()])
                     label = '%s %.2f' % (names[int(cls)], conf)
-                    #plot_one_box(xyxy, im0, label=label, color=colors[int(cls)])
+                    #
                     #print('bboxes')
                     #print(torch.Tensor(bbox_xywh))
                     #print('confs')
