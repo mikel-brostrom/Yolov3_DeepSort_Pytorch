@@ -4,6 +4,46 @@ from sys import platform
 from models import *  # set ONNX_EXPORT in models.py
 from utils.datasets import *
 from utils.utils import *
+from deep_sort import DeepSort
+
+deepsort = DeepSort("deep_sort/deep/checkpoint/ckpt.t7")
+palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
+
+
+def bbox_rel(image_width, image_height, bbox_left, bbox_top, bbox_w, bbox_h):
+    """" Calculates the relative bounding box from absolute pixel values. """
+    x_c = (bbox_left + bbox_w / 2)
+    y_c = (bbox_top + bbox_h / 2)
+    w = bbox_w
+    h = bbox_h
+    return x_c, y_c, w, h
+
+
+def compute_color_for_labels(label):
+    """
+    Simple function that adds fixed color depending on the class
+    """
+    color = [int((p * (label ** 2 - label + 1)) % 255) for p in palette]
+    return tuple(color)
+
+
+def draw_boxes(img, bbox, identities=None, offset=(0,0)):
+    for i, box in enumerate(bbox):
+        x1, y1, x2, y2 = [int(i) for i in box]
+        x1 += offset[0]
+        x2 += offset[0]
+        y1 += offset[1]
+        y2 += offset[1]
+        # box text and bar
+        id = int(identities[i]) if identities is not None else 0    
+        color = compute_color_for_labels(id)
+        label = '{}{:d}'.format("", id)
+        t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 2 , 2)[0]
+        cv2.rectangle(img, (x1, y1),(x2,y2), color, 3)
+        cv2.rectangle(img, (x1, y1), (x1 + t_size[0] + 3, y1 + t_size[1] + 4), color, -1)
+        cv2.putText(img, label, (x1, y1 + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 2, [255, 255, 255], 2)
+    return img
+
 
 
 def detect(save_img=False):
@@ -106,21 +146,40 @@ def detect(save_img=False):
             if det is not None and len(det):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
-
+                # print(det[:, :5])
                 # Print results
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += '%g %ss, ' % (n, names[int(c)])  # add to string
 
+                bbox_xywh = []
+                confs = []
+
                 # Write results
                 for *xyxy, conf, cls in det:
-                    if save_txt:  # Write to file
-                        with open(save_path + '.txt', 'a') as file:
-                            file.write(('%g ' * 6 + '\n') % (*xyxy, cls, conf))
-
-                    if save_img or view_img:  # Add bbox to image
-                        label = '%s %.2f' % (names[int(cls)], conf)
-                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)])
+                    img_h, img_w, _ = im0.shape  # get image shape
+                    bbox_left = min([xyxy[0].item(), xyxy[2].item()])
+                    bbox_top = min([xyxy[1].item(), xyxy[3].item()])
+                    bbox_w = abs(xyxy[0].item() - xyxy[2].item())
+                    bbox_h = abs(xyxy[1].item() - xyxy[3].item())
+                    x_c, y_c, bbox_w, bbox_h = bbox_rel(img_w, img_h, bbox_left, bbox_top, bbox_w, bbox_h)
+                    #print(x_c, y_c, bbox_w, bbox_h)
+                    obj = [x_c, y_c, bbox_w, bbox_h]
+                    bbox_xywh.append(obj)
+                    confs.append([conf.item()])
+                    label = '%s %.2f' % (names[int(cls)], conf)
+                    #plot_one_box(xyxy, im0, label=label, color=colors[int(cls)])
+                    #print('bboxes')
+                    #print(torch.Tensor(bbox_xywh))
+                    #print('confs')
+                    #print(torch.Tensor(confs))
+                    outputs = deepsort.update((torch.Tensor(bbox_xywh)), (torch.Tensor(confs)) , im0)
+                    if len(outputs) > 0:
+                        bbox_xyxy = outputs[:, :4]
+                        identities = outputs[:, -1]
+                        ori_im = draw_boxes(im0, bbox_xyxy, identities)
+                    #print('\n\n\t\ttracked objects')
+                    #print(outputs)
 
             # Print time (inference + NMS)
             print('%sDone. (%.3fs)' % (s, time.time() - t))
@@ -160,17 +219,17 @@ if __name__ == '__main__':
     parser.add_argument('--cfg', type=str, default='cfg/yolov3-spp.cfg', help='*.cfg path')
     parser.add_argument('--names', type=str, default='data/coco.names', help='*.names path')
     parser.add_argument('--weights', type=str, default='weights/ultralytics68.pt', help='path to weights file')
-    parser.add_argument('--source', type=str, default='data/samples', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='0', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
-    parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
-    parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
+    parser.add_argument('--img-size', type=int, default=608, help='inference size (pixels)')
+    parser.add_argument('--conf-thres', type=float, default=0.5, help='object confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
     parser.add_argument('--fourcc', type=str, default='mp4v', help='output video codec (verify ffmpeg support)')
     parser.add_argument('--half', action='store_true', help='half precision FP16 inference')
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1) or cpu')
     parser.add_argument('--view-img', action='store_true', help='display results')
     parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
-    parser.add_argument('--classes', nargs='+', type=int, help='filter by class')
+    parser.add_argument('--classes', nargs='+', type=int, default=[0], help='filter by class')
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     opt = parser.parse_args()
     print(opt)
