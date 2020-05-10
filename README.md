@@ -28,6 +28,8 @@ All dependencies are included in the associated docker images. Docker requiremen
 
 ## Tracking
 
+The first time you run tracker.py you will get an exceptions telling you that the yolo weight are missing and a link to download them from. Place the .py file in `yolov3/weights/`
+
 `track.py` runs tracking on any video source:
 
 ```bash
