@@ -1,9 +1,9 @@
 import argparse
 from sys import platform
 
-from models import *  # set ONNX_EXPORT in models.py
-from utils.datasets import *
-from utils.utils import *
+from yolov3.models import *  # set ONNX_EXPORT in models.py
+from yolov3.utils.datasets import *
+from yolov3.utils.utils import *
 from deep_sort import DeepSort
 
 deepsort = DeepSort("deep_sort/deep/checkpoint/ckpt.t7")
@@ -189,9 +189,9 @@ def detect(save_img=True):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='cfg/yolov3-spp.cfg', help='*.cfg path')
-    parser.add_argument('--names', type=str, default='data/coco.names', help='*.names path')
-    parser.add_argument('--weights', type=str, default='weights/ultralytics68.pt', help='path to weights file')
+    parser.add_argument('--cfg', type=str, default='yolov3/cfg/yolov3-spp.cfg', help='*.cfg path')
+    parser.add_argument('--names', type=str, default='yolov3/data/coco.names', help='*.names path')
+    parser.add_argument('--weights', type=str, default='yolov3/weights/yolov3-spp-ultralytics.pt', help='path to weights file')
     parser.add_argument('--source', type=str, default='0', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
     parser.add_argument('--img-size', type=int, default=608, help='inference size (pixels)')
