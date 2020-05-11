@@ -1,6 +1,6 @@
 # Yolov3 + Deep Sort with PyTorch
 
-![](Town.gif)
+![](yolov3/Town.gif)
 
 ## Introduction
 
@@ -25,6 +25,10 @@ Python 3.7 or later with all of the `pip install -U -r requirements.txt` package
 All dependencies are included in the associated docker images. Docker requirements are: 
 - `nvidia-docker`
 - Nvidia Driver Version >= 440.44
+
+## Before you run the tracker
+
+Github block pushes of files larger than 100 MB (https://help.github.com/en/github/managing-large-files/conditions-for-large-files). Hence the yolo weights needs to be stored somewhere else. When you run tracker.py you will get an exceptions telling you that the yolov3 weight are missing and a link to download them from. Place the downlaoded `.pt` file under `yolov3/weights/`. The weights for deep sort are already in this repo. They can be found under `deep_sort/deep/checkpoint/`.
 
 ## Tracking
 
