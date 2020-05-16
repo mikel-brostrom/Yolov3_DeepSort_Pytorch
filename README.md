@@ -51,5 +51,5 @@ wget http://www.robots.ox.ac.uk/ActiveVision/Research/Projects/2009bbenfold_head
 
 ## Other information
 
-For more detailed information about the algorithms used in this project access their official github implementations.
+For more detailed information about the algorithms and their corresponding lisences used in this project access their official github implementations.
 
