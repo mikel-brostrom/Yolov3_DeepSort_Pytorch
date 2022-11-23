@@ -44,6 +44,20 @@ python3 track.py --source ...
 - HTTP stream:  `--source http://wmccpinetop.axiscam.net/mjpg/video.mjpg`
 
 
+## Cite
+
+If you find this project useful in your research, please consider cite:
+
+```latex
+@misc{yolov3-deepsort,
+    title={Real-time multi-camera multi-object tracker using YOLOv3 and DeepSORT},
+    author={Mikel Broström},
+    howpublished = {\url{https://github.com/mikel-brostrom/Yolov3_DeepSort_Pytorch}},
+    year={2019}
+}
+```
+
+
 ## Other information
 
 For more detailed information about the algorithms and their corresponding lisences used in this project access their official github implementations.
